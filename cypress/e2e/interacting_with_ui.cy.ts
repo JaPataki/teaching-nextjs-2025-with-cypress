@@ -1,3 +1,5 @@
+
+
 describe('Album Catalog - Interactions', () => {
     beforeEach(() => {
         cy.visit('/');
