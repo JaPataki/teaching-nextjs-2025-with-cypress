@@ -59,7 +59,7 @@ describe('Album Catalog - Interactions', () => {
 
     it('navigate to non existent album', () => {
         cy.visit('/album/99999');
-        cy.contains('Album not found').should('be.visible');
+        cy.contains('Album not foundd').should('be.visible');
     });
 
 });
