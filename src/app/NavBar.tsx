@@ -13,7 +13,7 @@ export function NavBar() {
   return (
     <div className="navbar bg-base-100 shadow-sm">
       <div className="flex-1">
-        <Link href="/" className="btn btn-ghost text-xl">
+        <Link href="/" className="btn btn-ghost text-xl" data-cy="spotify-logo">
           Spotify
         </Link>
       </div>
@@ -26,6 +26,7 @@ export function NavBar() {
           onChange={(e) => {
             setSearchInput(e.target.value);
           }}
+          data-cy="search-input"
         />
         <Link
           href={{
@@ -33,6 +34,7 @@ export function NavBar() {
             query: searchLinkQuery,
           }}
           className="btn btn-ghost text-xl"
+          data-cy="search-button"
         >
           Search
         </Link>

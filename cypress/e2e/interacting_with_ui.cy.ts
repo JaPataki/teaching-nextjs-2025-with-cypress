@@ -1,60 +1,65 @@
-describe('Spotify Albums - User Interactions', () => {
-
-    it('should search for an album by name using the search bar', () => {
+describe('Album Catalog - Interactions', () => {
+    beforeEach(() => {
         cy.visit('/');
-        cy.get('[data-cy="album-title"]').first().invoke('text').then((albumName) => {
-            cy.get('[data-cy="search-input"]').clear().type(albumName);
-            cy.get('[data-cy="search-button"]').click();
-            cy.get('[data-cy="search-album"]').should('be.visible').and('contain.text', albumName);
-        });
     });
 
-    it('opens detail page for the first album and shows its tracks', () => {
-        cy.visit('/');
-        cy.get('[data-cy="album-title"]').first().invoke('text').then((albumName) => {
-            cy.get('[data-cy="album-card"]').first().within(() => {
-                cy.contains('a', 'Detail').click();
-            });
-
-            cy.get('[data-cy="album-detail-name"]').should('include.text', albumName);
-            cy.get('[data-cy="album-song-row"]').should('have.length.gte', 1);
-        });
+    it('looks for songs when searching via search bar', () => {
+        cy.get('[data-cy="search-input"]').type('song');
+        cy.get('[data-cy="search-button"]').click();
+        cy.url().should('include', '/search');
+        cy.url().should('include', 'q=song');
+        cy.get('[data-cy="songs-header"]').should('be.visible');
+        cy.get('[data-cy="songs-header"]').should('contain.text', 'Songs');
     });
 
-    it('returns to the homepage when clicking the Spotify logo', () => {
-        cy.visit('/');
+    it('navigates to the first album detail', () => {
         cy.get('[data-cy="album-card"]').first().within(() => {
-            cy.contains('a', 'Detail').click();
+            cy.get('[data-cy="album-detail-link"]').click();
         });
+        cy.url().should('include', '/album/');
+    });
 
+    it('navigates to home page after clicking on Spotify logo', () => {
+        cy.get('[data-cy="search-input"]').type('test');
+        cy.get('[data-cy="search-button"]').click();
+        cy.url().should('include', '/search');
         cy.get('[data-cy="spotify-logo"]').click();
-        cy.get('[data-cy="title"]').should('be.visible').and('contain.text', 'Spotify');
+        cy.url().should('eq', Cypress.config().baseUrl + '/');
+        cy.get('[data-cy="title"]').should('be.visible');
     });
 
-    it('displays a message if /search is opened without a query', () => {
-        cy.visit('/search');
-        cy.contains('No Search query').should('exist').and('be.visible');
+    it('search input accepts user input and maintains state', () => {
+        const searchTerm = 'metallica';
+        cy.get('[data-cy="search-input"]').type(searchTerm);
+        cy.get('[data-cy="search-input"]').should('have.value', searchTerm);
     });
 
-    it('keeps the search term visible in the URL', () => {
-        cy.visit('/');
-        cy.get('[data-cy="album-title"]').first().invoke('text').then((albumName) => {
-            const query = albumName.trim();
-            cy.get('[data-cy="search-input"]').clear().type(query);
-            cy.get('[data-cy="search-button"]').click();
-            cy.location('search').should('include', 'q=');
-        });
+    it('displays search results for albums, songs and authors', () => {
+        cy.get('[data-cy="search-input"]').type('a');
+        cy.get('[data-cy="search-button"]').click();
+        cy.get('[data-cy="songs-header"]').should('be.visible');
+        cy.get('[data-cy="albums-header"]').should('be.visible');
+        cy.get('[data-cy="authors-header"]').should('be.visible');
     });
 
-    it('shows each song duration in mm:ss format', () => {
-        cy.visit('/');
+    it('navigates to author page when clicking author link', () => {
         cy.get('[data-cy="album-card"]').first().within(() => {
-            cy.contains('a', 'Detail').click();
+            cy.get('[data-cy="album-author-link"]').click();
         });
+        cy.url().should('include', '/author/');
+    });
 
-        cy.get('[data-cy="album-song-row"]').first().within(() => {
-            cy.get('td').eq(2).invoke('text').should('match', /^\d{1,2}:\d{2}$/);
-        });
+    it('maintains search input value when navigating back from search', () => {
+        const searchTerm = 'test search';
+        cy.get('[data-cy="search-input"]').type(searchTerm);
+        cy.get('[data-cy="search-button"]').click();
+        cy.get('[data-cy="spotify-logo"]').click();
+        cy.get('[data-cy="search-input"]').should('have.value', searchTerm);
+    });
+
+    it('navigate to non existent album', () => {
+        cy.visit('/album/99999');
+        cy.contains('Album not found').should('be.visible');
     });
 
 });

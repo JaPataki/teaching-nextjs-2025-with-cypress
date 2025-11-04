@@ -59,3 +59,4 @@ describe('Spotify Album Catalog - UI Flow', () => {
   });
 
 });
+
